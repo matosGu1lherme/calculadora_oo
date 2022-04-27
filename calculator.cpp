@@ -1,27 +1,78 @@
 #include "calculator.h"
-
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 //********************************************************************************************
 //******************funções auxiliares********************************************************
 //********************************************************************************************
 
-int expoente(int b, int expo){
-
-  int res = 1;
-  for (int i = 0; i < expo; i++)
+//**************************Implementação Display**************************************************
+//imprimi os digitos na tela
+Digit convertToDigit(int n){
+  switch (n)
   {
-    res = res * b;
+    case 0: return ZERO; break;
+    case 1: return ONE; break;
+    case 2: return TWO; break;
+    case 3: return THRE; break;
+    case 4: return FOUR; break;
+    case 5: return FIVE; break;
+    case 6: return SIX; break;
+    case 7: return SEVEN; break;
+    case 8: return EIGHT; break;
+    case 9: return NINE; break;
+
+    default:
+    cout<<"MATH ERROR";
+    break;
   }
-  
-  return res;
 }
 
-//**************************Implmentações*******************************************************
+
+void Display::add(Digit number){
+  switch (number)
+  {
+    case ZERO: cout<<0; break;
+    case ONE: cout<<1; break;
+    case TWO: cout<<2; break;
+    case THRE: cout<<2; break;
+    case FOUR: cout<<2; break;
+    case FIVE: cout<<2; break;
+    case SIX: cout<<2; break;
+    case SEVEN: cout<<2; break;
+    case EIGHT: cout<<2; break;
+    case NINE: cout<<2; break;
+
+    default:
+    setError();
+    break;
+  }
+}
+
+//imprimi um Decimal Separator
+void Display::setDecimalSeparator(){
+  cout<<".";
+}
+
+//Imprimi um error no console
+void Display::setError(){
+  cout<<"MATH-ERROR";
+}
+//imprimi um sinal na tela
+void Display::setSignal(Signal ){
+  cout<<"-";
+}
+//Limpa o display do Console 
+void Display::clear(){
+  cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+}
+
+//**************************Implmentações CPU*******************************************************
 void Cpu::receiveDigit(Digit number)
 {
-
+  this->display->add(number);
+  //faz a convercao de um DIGIT para um INT e grava os INDEX do vetor de 8 digitos da caulculadora
   if (this->quant_operation == 0)
   {
       //cout<<"entrou";
@@ -59,7 +110,7 @@ void Cpu::receiveDigit(Digit number)
       break;
 
     default:
-      cout << "MATH ERROR";
+      this->display->setError();
       break;
     }
 
@@ -101,7 +152,7 @@ void Cpu::receiveDigit(Digit number)
       break;
 
     default:
-      cout << "MATH ERROR";
+      this->display->setError();
       break;
     }
 
@@ -125,42 +176,63 @@ void Cpu::receiveOperation(Operation op){
 }
 
 void Cpu::receiveControl(Control control){
+  
+  
+  
+  // marca a posição do ponto flutuanse (DECIMAL SEPARATOR) e sinaliza aonde deve ser feita convercao de base
+
+  if (control == DECIMAL_SEPARATOR)
+  {
+    this->display->setDecimalSeparator();
+    if (this->quant_operation == 0)
+    {
+      this->quant_digits1 = 0;
+      this->escopo1 = (this->quant_digits1 + 1) * (-1);
+    }else{
+      this->quant_digits2 = 0;
+      this->escopo2 = (this->quant_digits1 + 1) * (-1);
+    }
+    
+  }
+  
+
   if (control == EQUAL)
   {
-    float res = 0;
     
-    float numeber1 = 0;
-    for (int i = 0; i < this->quant_digits1 ; i++)
+    float res = 0;
+    // Transforma o numero em decimal por meio de multiplicacao da base 10
+    float number1 = 0;
+    for ( int i = this->quant_digits1; i >= this->escopo1 ; i--)
     {
-      numeber1 = numeber1 + this->operator1[i] * expoente(10,i);
+      number1 = number1 + this->operator1[i] * pow(10,i);
     }
-    cout<<numeber1<<"\n";
+    cout<<number1<<"\n";
     
     float numeber2 = 0;
-    for (int i = 0; i < this->quant_digits2 ; i++)
+    for ( int i = this->quant_digits2; i >= this->escopo2 ; i++)
     {
-      numeber2 = numeber2 + this->operator2[i] * expoente(10,i);
+      numeber2 = numeber2 + this->operator2[i] * pow(10,i);
     }
     cout<<numeber2<<"\n";
     
     if (this->operation == ADDITION)
     {
-      res = numeber1 + numeber2;
+      res = number1 + numeber2;
     }
 
     if (this->operation == SUBTRACTION)
     {
-      res = numeber1 - numeber2;
+      res = number1 - numeber2;
     }
 
     if (this->operation == DIVISION)
     {
-      res = numeber1 / numeber2;
+      res = number1 / numeber2;
     }
     
     if (this->operation == MULTIPLICATION)
     {
-      res = numeber1 * numeber2;
+      res = number1 * numeber2;
     }
 
     this->quant_operation = 0;
@@ -168,8 +240,66 @@ void Cpu::receiveControl(Control control){
     this->quant_digits2 = 0;
     
     cout<<res;
-    this->resultado = res;
+
+    //traz os numeros de resultado pra frente da virgula e imprimi
+    int mult = pow(10,( * (-1)));
+    int p_res = res + mult;
+    int expo = 0;
+    int div = 10;
+    while (p_res != 0)
+    {
+      
+      if (k == 0)
+      {
+        this->display->setDecimalSeparator();
+      }
+      this->display->add(convertToDigit(p_res%div));
+      p_res /= 10;
+      k++;
+    }
+    
   }
   
+  if (control == CLEAR)
+  {
+    this->quant_operation = 0;
+    this->quant_digits1 = 0;
+    this->quant_digits2 = 0;
+  }
   
+}
+
+
+//*****************************Implemtação Key******************************************************
+void Key::setReceiver(Receiver *r){
+  this->receiver = r;
+}
+//*****************************Implemtação KeyDigit******************************************************
+void KeyDigit::press(){
+  this->receiver->receiveDigit(this->digit);
+}
+
+//*****************************Implemtação KeyOperation**************************************************
+void KeyOperation::press(){
+  this->receiver->receiveOperation(this->operation);
+}
+//*****************************Implemtação KeyControl****************************************************
+void KeyControl::press(){
+  this->receiver->receiveControl(this->control);
+}
+//*****************************Implemtação KeyBoard*******************************************************
+
+void Keyboard::receiveDigit(Digit n){
+
+  this->cpu->receiveDigit(n);
+}
+
+void Keyboard::receiveOperation(Operation op){
+
+  this->cpu->receiveOperation(op);
+}
+
+void Keyboard::receiveControl(Control control){
+
+  this->cpu->receiveControl(control);
 }

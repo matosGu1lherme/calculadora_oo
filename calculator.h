@@ -3,13 +3,14 @@ enum Operation {ADDITION, SUBTRACTION, DIVISION, MULTIPLICATION, SQUARE_ROOT, PE
 enum Control {CLEAR, RESET, DECIMAL_SEPARATOR, MEMORY_READ_CLEAR, MEMORY_ADDITION, MEMORY_SUBTRACTION, EQUAL};
 enum Signal {POSITIVE, NEGATIVE};
 
-class Display{
+class Display{ 
+    Digit convertToDigit(int);
   public:
-    virtual void add(Digit ) = 0;
-    virtual void setDecimalSeparator() = 0;
-    virtual void setSignal(Signal ) = 0;
-    virtual void setError() = 0;
-    virtual void clear() = 0;
+    void add(Digit );
+    void setDecimalSeparator();
+    void setSignal(Signal );
+    void setError();
+    void clear();
 };
 
 class Receiver{
@@ -22,12 +23,14 @@ class Receiver{
 class Cpu: public Receiver{
   Display* display;
   Operation operation;
+  Signal Signal = POSITIVE;
   int operator1 [8] = {0,0,0,0,0,0,0,0};
   int operator2 [8] = {0,0,0,0,0,0,0,0};
   int quant_operation = 0;
   int quant_digits1 = 0;
   int quant_digits2 = 0;
-  int resultado;
+  int escopo1 = 0;
+  int escopo2 = 0;
   public:
     void setDisplay(Display* );
     void receiveDigit(Digit );
@@ -37,33 +40,34 @@ class Cpu: public Receiver{
 
 class Key; // Preset for early reference
 
-class Keyboard: public Receiver{
-   Cpu* cpu;
-   
-   public:
-      void setCpu(Cpu* );
-
-      virtual void addKey(Key* ) = 0;
-
-      virtual void receiveDigit(Digit ) = 0;
-      virtual void receiveOperation(Operation ) = 0;
-      virtual void receiveControl(Control ) = 0;
-};
 
 class Calculator{
   public:
-    virtual void setDisplay(Display* ) = 0;
-    virtual void setCpu(Cpu* ) = 0;
-    virtual void setKeyboard(Keyboard* ) = 0;
+    void setDisplay(Display* );
+    void setCpu(Cpu* );
+    void setKeyboard(Keyboard* );
 };
 
+//Keybord vai receber os comandos 
+class Keyboard: public Receiver{
+   Cpu* cpu;
+
+   public:
+      void setCpu(Cpu* );
+
+      void addKey(Key* );
+
+      void receiveDigit(Digit );
+      void receiveOperation(Operation );
+      void receiveControl(Control );
+};
 class Key{
    protected:
      Receiver* receiver;
    public:
       void setReceiver(Receiver* );
 
-      virtual void press() = 0;
+      void press();
 };
 
 class KeyDigit: public Key{
