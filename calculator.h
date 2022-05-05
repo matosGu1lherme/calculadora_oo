@@ -1,5 +1,7 @@
-enum Digit {ZERO, ONE, TWO, THRE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE};
-enum Operation {ADDITION, SUBTRACTION, DIVISION, MULTIPLICATION, SQUARE_ROOT, PERCENTAGE};
+#pragma once
+
+enum Digit {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE};
+enum Operation {ADDITION, SUBTRACTION, DIVISION, MULTIPLICATION, SQUARE_ROOT, PERCENTAGE, NONE};
 enum Control {CLEAR, RESET, DECIMAL_SEPARATOR, MEMORY_READ_CLEAR, MEMORY_ADDITION, MEMORY_SUBTRACTION, EQUAL};
 enum Signal {POSITIVE, NEGATIVE};
 
@@ -20,12 +22,8 @@ class Receiver{
 
 };
 class Cpu: public Receiver{
-  Display* display;
-  Operation operation;
-  int *operator1 = new int[8];
-  int *operator2 = new int[8];
-  int quant_operation = 0;
-  int quant_digits = 0;
+  protected:
+    Display* display;
 
   public:
     void setDisplay(Display* );
@@ -38,8 +36,8 @@ class Cpu: public Receiver{
 class Key; // Preset for early reference
 
 class Keyboard: public Receiver{
-   Cpu* cpu;
-   
+   protected:
+    Cpu* cpu;
    public:
       void setCpu(Cpu* );
 
@@ -67,6 +65,7 @@ class Key{
 };
 
 class KeyDigit: public Key{
+    protected:
      Digit digit;
    public:
       KeyDigit(Digit );
@@ -74,6 +73,7 @@ class KeyDigit: public Key{
 };
 
 class KeyOperation: public Key{
+    protected:
      Operation operation;
    public:
       KeyOperation(Operation );
@@ -81,6 +81,7 @@ class KeyOperation: public Key{
 };
 
 class KeyControl: public Key{
+    protected:
      Control control;
    public:
       KeyControl(Control );
